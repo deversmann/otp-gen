@@ -75,16 +75,33 @@ case $1 in
                         init
                         gen_pass=""
                         val=`sqlite3 $CONFIG_DB "SELECT * FROM otp_info WHERE name IS \"$2\" LIMIT 1;"`
-                        if [ $val != "" ]
+                        if [ ! -z $val ]
                         then
-                            echo $val
                             key="$(cut -d'|' -f3 <<<$val)"
                             pin="$(cut -d'|' -f2 <<<$val)"
                             count="$(cut -d'|' -f4 <<<$val)"
                             token=$(oathtool -c ${count} ${key})
                             gen_pass="$pin$token"
-                            echo "key is $key and count is $count and generated password is $gen_pass"
                             sqlite3 $CONFIG_DB "UPDATE otp_info SET count = count + 1 WHERE name IS \"$2\";"
+                        fi
+
+                        case `uname -s` in
+                            Linux* )
+                                # Copy to GUI buffer (ib) and CLI buffer (ip)
+                                echo -n $gen_pass | xsel -ib
+                                echo -n $gen_pass | xsel -ip
+                                ;;
+                            Darwin* )
+                                # The 'pbcopy' command is for OS X
+                                echo -n $gen_pass | pbcopy
+                                ;;
+                            * )
+                                ;;
+                        esac
+                        
+                        if [ "$gen_pass" = "" ]
+                        then
+                            exit 2
                         fi
                         exit
                         ;;
