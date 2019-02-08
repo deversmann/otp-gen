@@ -109,7 +109,7 @@ usage:  $prog add -n NAME -p PIN -k KEY [ -c COUNTER ]  # add new OTP (replaces 
 
 NAME is the identifier of the OTP you wish to add, remove or generate
 PIN is the text that will be prefixed to the generated OTP
-KEY is the secret key used to see the OTP algorithm
+KEY is the secret key used to see the OTP algorithm (base32)
 COUNTER is the count to store if you are reusing an existing HOTP key
 
 otp-gen will store the generated password on the user's clipboard. If NAME
@@ -157,7 +157,7 @@ generate() {
         key="$(cut -d'|' -f3 <<<$val)"
         pin="$(cut -d'|' -f2 <<<$val)"
         count="$(cut -d'|' -f4 <<<$val)"
-        token=$(oathtool -c ${count} ${key})
+        token=$(oathtool -b -c ${count} ${key})
         gen_pass="$pin$token"
         sqlite3 $CONFIG_DB "UPDATE otp_info SET count = count + 1 WHERE name IS \"$name\";"
     fi
