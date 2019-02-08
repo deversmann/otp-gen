@@ -17,14 +17,14 @@ init()
     # make the database
     if [ ! -f $CONFIG_DB ] 
     then
-        sqlite3 $CONFIG_DB "CREATE TABLE otp_info ( name VARCHAR(50) UNIQUE, pin VARCHAR(50), key VARCHAR(50), count INT);"
+        sqlite3 $CONFIG_DB "CREATE TABLE otp_info ( name VARCHAR(50) UNIQUE, pin VARCHAR(50), key VARCHAR(50), count INT );"
         chmod 600 $CONFIG_DB
     fi
 }
 
 usage ()
 {
-    echo "usage:  $0 add NAME PIN KEY [ INITIAL_COUNT ]  # add new OTP (replaces existing)"
+    echo "usage:  $0 add NAME PIN KEY [ COUNTER ]  # add new OTP (replaces existing)"
     echo "        $0 remove NAME                     # remove an existing OTP"
     echo "        $0 generate NAME                   # generate a password"
     echo "        $0 usage | --help                  # print usage and exit"
@@ -32,7 +32,7 @@ usage ()
     echo "NAME is the identifier of the OTP you wish to add, remove or generate"
     echo "PIN is the text that will be prefixed to the generated OTP"
     echo "KEY is the secret key used to see the OTP algorithm"
-    echo "INITIAL_COUNT is the count to store if you are reusing an existing HOTP key"
+    echo "COUNTER is the count to store if you are reusing an existing HOTP key"
     echo ""
     echo "otp-gen will store the generated password on the user's clipboard. If NAME"
     echo "is not found when generating, the clipboard will be cleared and exit code"
@@ -48,13 +48,13 @@ case $1 in
                             exit 1
                         fi
                         init
-                        initial_count=0
+                        counter=0
                         if [ "$5" != "" ]
                         then
-                            initial_count=$5
+                            counter=$5
                         fi
-                        sqlite3 $CONFIG_DB "REPLACE INTO otp_info VALUES (\"$2\", \"$3\", \"$4\", $initial_count);" 
-                        echo "added/replaced OTP entry $2 with key $4 and initial count $initial_count"
+                        sqlite3 $CONFIG_DB "REPLACE INTO otp_info VALUES (\"$2\", \"$3\", \"$4\", $counter);" 
+                        echo "added/replaced OTP entry $2 with key $4 and initial count $counter"
                         exit
                         ;;
     remove )            if [ "$2" = "" ]
