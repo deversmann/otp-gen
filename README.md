@@ -1,5 +1,7 @@
 ## Shell script to generate One-Time Passwords
 
+![CI](https://github.com/deversmann/otp-gen/actions/workflows/ci.yml/badge.svg)
+
 ```
 usage:  otp-gen add -n NAME -p PIN -k KEY [ -c COUNTER ]  # add new OTP (replaces existing)
         otp-gen remove -n NAME                            # remove an existing OTP
