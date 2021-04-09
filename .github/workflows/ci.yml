@@ -1,0 +1,24 @@
+---
+name: CI
+on:
+  pull_request:
+  push:
+    branches:
+      - "master"
+  schedule:
+    - cron: "0 4 * * 5"
+
+jobs:
+  integration:
+    name: Integration
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v2
+      - run: brew install oath-toolkit
+      - run: ./otp-gen.sh add -n test -p 1234567890 -k GEZDGNBVGY3TQOJQ
+      - run: ./otp-gen.sh generate -n test
+      - run: diff <(echo `pbpaste`) <(echo "1234567890891490")
+      - run: ./otp-gen.sh generate -n test
+      - run: diff <(echo `pbpaste`) <(echo "1234567890263420")
+      - run: ./otp-gen.sh generate -n test
+      - run: diff <(echo `pbpaste`) <(echo "1234567890092045")
