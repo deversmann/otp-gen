@@ -13,12 +13,26 @@ jobs:
     name: Integration
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v2
-      - run: brew install oath-toolkit
-      - run: ./otp-gen.sh add -n test -p 1234567890 -k GEZDGNBVGY3TQOJQ
-      - run: ./otp-gen.sh generate -n test
-      - run: diff <(echo `pbpaste`) <(echo "1234567890891490")
-      - run: ./otp-gen.sh generate -n test
-      - run: diff <(echo `pbpaste`) <(echo "1234567890263420")
-      - run: ./otp-gen.sh generate -n test
-      - run: diff <(echo `pbpaste`) <(echo "1234567890092045")
+      - name: Code Checkout
+        uses: actions/checkout@v2
+
+      - name: Install dependencies
+        run: brew install oath-toolkit
+
+      - name: Test error conditions
+        run: |
+          ! ./otp-gen.sh not_a_verb
+          ! ./otp-gen.sh generate -x not_an_arg
+          ! ./otp-gen.sh generate -n not_a_name
+
+      - name: Test functionality
+        run: |
+          ./otp-gen.sh add -n test -p 1234567890 -k GEZDGNBVGY3TQOJQ
+          ./otp-gen.sh generate -n test
+          diff <(echo `pbpaste`) <(echo "1234567890891490")
+          ./otp-gen.sh generate -n test
+          diff <(echo `pbpaste`) <(echo "1234567890263420")
+          ./otp-gen.sh generate -n test
+          diff <(echo `pbpaste`) <(echo "1234567890092045")
+          ./otp-gen.sh remove -n test
+          ! ./otp-gen.sh generate -n test
